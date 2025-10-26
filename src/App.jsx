@@ -5,6 +5,7 @@ import Cartas from './components/Cartas';
 import Razones from './components/Razones';
 import Tienda from './components/Tienda';
 import MiniJuego from './components/MiniJuego';
+import Cancioncitas from './components/Cancioncitas';
 
 function App() {
   const [vistaActual, setVistaActual] = useState('dashboard');
@@ -21,6 +22,8 @@ function App() {
         return <Tienda onBack={() => setVistaActual('dashboard')} />;
       case 'juego':
         return <MiniJuego onBack={() => setVistaActual('dashboard')} />;
+      case 'canciones':
+        return <Cancioncitas onBack={() => setVistaActual('dashboard')} />;
       default:
         return <Dashboard onNavigate={setVistaActual} />;
     }

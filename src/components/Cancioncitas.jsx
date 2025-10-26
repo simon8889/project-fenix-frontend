@@ -1,75 +1,62 @@
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { ArrowLeft, MailOpen, Sparkles, Heart } from 'lucide-react';
-import { getCartas, leerCarta } from '../utils/api';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ArrowLeft, Music, Play, Pause, Heart, Sparkles, Headphones, ExternalLink } from 'lucide-react';
+import { getCanciones, escucharCancion } from '../utils/api';
 import toast from 'react-hot-toast';
 
-export default function Cartas({ onBack }) {
-  const [cartas, setCartas] = useState([]);
-  const [cartaAleatoria, setCartaAleatoria] = useState(null);
+export default function Cancioncitas({ onBack }) {
+  const [canciones, setCanciones] = useState([]);
+  const [cancionAleatoria, setCancionAleatoria] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    cargarCartas();
+    cargarCanciones();
   }, []);
 
-  const cargarCartas = async () => {
+  const cargarCanciones = async () => {
     try {
-      const res = await getCartas();
-      const todasCartas = res.data.data;
-      setCartas(todasCartas);
+      const res = await getCanciones();
+      const todasCanciones = res.data.data;
+      setCanciones(todasCanciones);
       
-      // Seleccionar una carta aleatoria
-      if (todasCartas.length > 0) {
-        const indiceAleatorio = Math.floor(Math.random() * todasCartas.length);
-        setCartaAleatoria(todasCartas[indiceAleatorio]);
+      // Seleccionar una canción aleatoria
+      if (todasCanciones.length > 0) {
+        const indiceAleatorio = Math.floor(Math.random() * todasCanciones.length);
+        setCancionAleatoria(todasCanciones[indiceAleatorio]);
       }
       
       setLoading(false);
     } catch (error) {
-      toast.error('Error al cargar las cartas');
+      toast.error('Error al cargar las canciones');
       setLoading(false);
     }
   };
 
-  const handleCambiarCarta = () => {
-    if (cartas.length > 0) {
-      const indiceAleatorio = Math.floor(Math.random() * cartas.length);
-      setCartaAleatoria(cartas[indiceAleatorio]);
-      toast.success('¡Nueva carta! 💌', {
+  const handleCambiarCancion = () => {
+    if (canciones.length > 0) {
+      const indiceAleatorio = Math.floor(Math.random() * canciones.length);
+      setCancionAleatoria(canciones[indiceAleatorio]);
+      toast.success('¡Nueva canción! 🎵', {
         icon: '💕',
         duration: 2000
       });
     }
   };
 
-  const handleLeerCarta = async () => {
-    if (!cartaAleatoria) return;
-    
-    if (cartaAleatoria.leida) {
-      toast('Ya leíste esta carta anteriormente 😊', {
-        icon: '💌',
-        duration: 2000
-      });
-      return;
-    }
-
+  const handleAbrirLink = async (link) => {
     try {
-      await leerCarta(cartaAleatoria.id);
-      toast.success('¡+1 estrella! ⭐', {
-        icon: '✨',
-        duration: 3000,
+      // Dar estrella por escuchar
+      await escucharCancion();
+      toast.success('¡+1 estrella por escuchar! ⭐', {
+        icon: '🎵',
+        duration: 2000,
       });
-      
-      // Actualizar la carta como leída
-      setCartaAleatoria({ ...cartaAleatoria, leida: true });
-      
-      // Recargar cartas para actualizar el estado
-      const res = await getCartas();
-      setCartas(res.data.data);
     } catch (error) {
-      toast.error('Error al leer carta');
+      console.error('Error al dar estrella:', error);
     }
+    
+    // Abrir Spotify
+    window.open(link, '_blank');
   };
 
   if (loading) {
@@ -78,12 +65,12 @@ export default function Cartas({ onBack }) {
         <motion.div 
           animate={{ 
             scale: [1, 1.2, 1],
-            rotate: [0, 10, -10, 0]
+            rotate: [0, 360]
           }}
           transition={{ duration: 2, repeat: Infinity }}
           className="text-8xl"
         >
-          💌
+          🎵
         </motion.div>
       </div>
     );
@@ -91,12 +78,12 @@ export default function Cartas({ onBack }) {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-sky-300 via-sky-400 to-pink-300 relative overflow-hidden">
-      {/* Decoración de fondo - Corazones flotantes */}
+      {/* Decoración de fondo - Notas musicales flotantes */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {[...Array(8)].map((_, i) => (
+        {[...Array(12)].map((_, i) => (
           <motion.div
             key={i}
-            className="absolute text-pink-300 opacity-20"
+            className="absolute text-white opacity-20"
             initial={{ 
               x: Math.random() * window.innerWidth,
               y: -50,
@@ -110,11 +97,11 @@ export default function Cartas({ onBack }) {
             transition={{ 
               duration: 15 + Math.random() * 10,
               repeat: Infinity,
-              delay: i * 2,
+              delay: i * 1.5,
               ease: "linear"
             }}
           >
-            <Heart className="w-8 h-8 fill-current" />
+            {i % 3 === 0 ? '🎵' : i % 3 === 1 ? '🎶' : '💕'}
           </motion.div>
         ))}
       </div>
@@ -128,23 +115,23 @@ export default function Cartas({ onBack }) {
         >
           <motion.button
             onClick={onBack}
-            whileHover={{ scale: 1.1 }}
+            whileHover={{ scale: 1.1, rotate: -5 }}
             whileTap={{ scale: 0.9 }}
             className="p-3 rounded-full bg-white/90 backdrop-blur shadow-lg hover:shadow-xl transition-all"
           >
-            <ArrowLeft className="w-6 h-6 text-pink-600" />
+            <ArrowLeft className="w-6 h-6 text-purple-600" />
           </motion.button>
           <div>
             <h1 className="text-3xl font-bold text-white drop-shadow-lg">
-              Carta del Día
+              Nuestra Playlist
             </h1>
             <p className="text-white/90 text-sm mt-1">
-              Una carta especial para ti 💌
+              Canciones que me recuerdan a ti 🎵💕
             </p>
           </div>
         </motion.div>
 
-        {/* Tarjeta de presentación */}
+        {/* Tarjeta de resumen */}
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -152,7 +139,7 @@ export default function Cartas({ onBack }) {
           className="bg-white/95 backdrop-blur rounded-3xl shadow-2xl p-6 mb-6 relative overflow-hidden"
         >
           <div className="absolute top-0 right-0 text-9xl opacity-5">
-            💌
+            🎧
           </div>
           <div className="relative z-10 text-center">
             <motion.div
@@ -163,44 +150,40 @@ export default function Cartas({ onBack }) {
               transition={{ duration: 2, repeat: Infinity }}
               className="text-6xl mb-4"
             >
-              💌
+              🎵
             </motion.div>
-            <h2 className="text-2xl font-bold bg-gradient-to-r from-pink-600 to-rose-600 bg-clip-text text-transparent mb-2">
-              Carta del Momento
+            <h2 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
+              Canción del Momento
             </h2>
             <p className="text-sm text-gray-600">
-              Palabras escritas con el corazón 💕
+              Una canción especial para ti 💕
             </p>
           </div>
         </motion.div>
 
-        {/* Carta Aleatoria */}
-        {cartaAleatoria ? (
+        {/* Canción Aleatoria */}
+        {cancionAleatoria ? (
           <motion.div
             initial={{ opacity: 0, scale: 0.8, y: 50 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             transition={{ delay: 0.3, type: "spring", damping: 15 }}
-            className="bg-gradient-to-br from-amber-50 via-pink-50 to-rose-50 rounded-3xl shadow-2xl p-8 mb-6 relative overflow-hidden"
+            className="bg-gradient-to-br from-purple-50 via-pink-50 to-rose-50 rounded-3xl shadow-2xl p-8 mb-6 relative overflow-hidden"
           >
             {/* Decoración de fondo */}
             <div className="absolute top-0 right-0 text-9xl opacity-5">
-              💌
+              🎵
             </div>
             <div className="absolute bottom-0 left-0 text-9xl opacity-5">
               💕
             </div>
 
             <div className="relative z-10">
-              {/* Icono de sobre animado */}
+              {/* Icono de música animado */}
               <motion.div
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 transition={{ delay: 0.4, type: "spring" }}
-                className={`w-32 h-32 mx-auto mb-6 rounded-full ${
-                  cartaAleatoria.leida
-                    ? 'bg-gradient-to-br from-gray-300 to-gray-400'
-                    : 'bg-gradient-to-br from-pink-400 via-rose-400 to-pink-500'
-                } flex items-center justify-center text-6xl shadow-2xl`}
+                className="w-32 h-32 mx-auto mb-6 rounded-full bg-gradient-to-br from-purple-400 via-pink-400 to-rose-500 flex items-center justify-center text-6xl shadow-2xl"
               >
                 <motion.div
                   animate={{ 
@@ -209,109 +192,81 @@ export default function Cartas({ onBack }) {
                   }}
                   transition={{ duration: 2, repeat: Infinity }}
                 >
-                  {cartaAleatoria.leida ? '📭' : '💌'}
+                  🎵
                 </motion.div>
               </motion.div>
 
-              {/* Título de la carta */}
+              {/* Título de la canción */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5 }}
                 className="text-center mb-6"
               >
-                <h2 className="text-4xl font-bold bg-gradient-to-r from-pink-600 to-rose-600 bg-clip-text text-transparent mb-3">
-                  {cartaAleatoria.titulo}
+                <h2 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-3">
+                  {cancionAleatoria.nombre}
                 </h2>
-                <motion.div 
-                  initial={{ width: 0 }}
-                  animate={{ width: "5rem" }}
-                  transition={{ delay: 0.6 }}
-                  className="h-1 bg-gradient-to-r from-pink-400 via-rose-400 to-pink-400 mx-auto rounded-full"
-                />
+                {cancionAleatoria.artista && (
+                  <p className="text-xl text-gray-700 font-medium">
+                    {cancionAleatoria.artista}
+                  </p>
+                )}
               </motion.div>
 
-              {/* Contenido de la carta */}
+              {/* Motivo */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.7 }}
-                className="bg-white/60 backdrop-blur rounded-2xl p-6 mb-6 shadow-lg max-h-96 overflow-y-auto"
+                transition={{ delay: 0.6 }}
+                className="bg-white/60 backdrop-blur rounded-2xl p-6 mb-6 shadow-lg"
               >
-                <p className="text-gray-700 leading-relaxed whitespace-pre-wrap text-base">
-                  {cartaAleatoria.contenido}
-                </p>
-              </motion.div>
-
-              {/* Firma */}
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.8 }}
-                className="border-t-2 border-pink-200 pt-6 text-right mb-6"
-              >
-                <p className="text-gray-600 italic font-medium mb-2">
-                  Con todo mi cariño,
-                </p>
-                <p className="text-2xl font-bold bg-gradient-to-r from-pink-600 to-rose-600 bg-clip-text text-transparent flex items-center justify-end gap-2">
-                  Tu programador favorito
-                  <Heart className="w-5 h-5 text-pink-500 fill-pink-500" />
+                <div className="flex items-center gap-2 mb-3">
+                  <Heart className="w-6 h-6 text-pink-500 fill-pink-500" />
+                  <span className="font-bold text-gray-800 text-lg">Por qué te la dedico:</span>
+                </div>
+                <p className="text-gray-700 leading-relaxed text-base">
+                  {cancionAleatoria.motivo}
                 </p>
               </motion.div>
 
               {/* Botones */}
               <div className="space-y-3">
-                {!cartaAleatoria.leida && (
-                  <motion.button
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.9 }}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={handleLeerCarta}
-                    className="w-full bg-gradient-to-r from-pink-500 via-rose-500 to-pink-600 text-white font-bold py-5 rounded-2xl shadow-lg hover:shadow-2xl transition-all flex items-center justify-center gap-3 relative overflow-hidden group"
-                  >
-                    <motion.div
-                      className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-0 group-hover:opacity-30"
-                      animate={{ x: ['-100%', '200%'] }}
-                      transition={{ duration: 1.5, repeat: Infinity, repeatDelay: 0.5 }}
-                    />
-                    <MailOpen className="w-6 h-6" />
-                    <span className="relative z-10 text-lg">Marcar como leída (+1⭐)</span>
-                  </motion.button>
-                )}
-
-                {cartaAleatoria.leida && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.9 }}
-                    className="text-center py-4 bg-green-50 rounded-2xl border-2 border-green-200"
-                  >
-                    <p className="text-green-600 font-bold flex items-center justify-center gap-2">
-                      <Sparkles className="w-5 h-5" />
-                      ¡Ya leíste esta carta! 💚
-                    </p>
-                  </motion.div>
-                )}
-
                 <motion.button
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 1 }}
+                  transition={{ delay: 0.7 }}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  onClick={handleCambiarCarta}
-                  className="w-full bg-gradient-to-r from-cyan-400 to-blue-400 text-white font-bold py-4 rounded-2xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2"
+                  onClick={() => handleAbrirLink(cancionAleatoria.link)}
+                  className="w-full bg-gradient-to-r from-purple-500 via-pink-500 to-rose-500 text-white font-bold py-5 rounded-2xl shadow-lg hover:shadow-2xl transition-all flex items-center justify-center gap-3 relative overflow-hidden group"
                 >
-                  <Sparkles className="w-5 h-5" />
-                  Otra carta sorpresa
+                  <motion.div
+                    className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-0 group-hover:opacity-30"
+                    animate={{ x: ['-100%', '200%'] }}
+                    transition={{ duration: 1.5, repeat: Infinity, repeatDelay: 0.5 }}
+                  />
+                  <Play className="w-6 h-6 fill-current" />
+                  <span className="relative z-10 text-lg">Escuchar en Spotify (+1⭐)</span>
+                  <ExternalLink className="w-5 h-5" />
                 </motion.button>
 
                 <motion.button
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 1.1 }}
+                  transition={{ delay: 0.8 }}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={handleCambiarCancion}
+                  className="w-full bg-gradient-to-r from-cyan-400 to-blue-400 text-white font-bold py-4 rounded-2xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2"
+                >
+                  <Sparkles className="w-5 h-5" />
+                  Otra canción sorpresa
+                </motion.button>
+
+                <motion.button
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.9 }}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={onBack}
@@ -321,11 +276,11 @@ export default function Cartas({ onBack }) {
                 </motion.button>
               </div>
 
-              {/* Decoración de corazones */}
+              {/* Decoración de estrellas */}
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ delay: 1.2 }}
+                transition={{ delay: 1 }}
                 className="flex justify-center gap-2 mt-6"
               >
                 {[...Array(5)].map((_, i) => (
@@ -333,9 +288,9 @@ export default function Cartas({ onBack }) {
                     key={i}
                     initial={{ scale: 0, rotate: -180 }}
                     animate={{ scale: 1, rotate: 0 }}
-                    transition={{ delay: 1.3 + i * 0.1, type: "spring" }}
+                    transition={{ delay: 1.1 + i * 0.1, type: "spring" }}
                   >
-                    <Heart className="w-5 h-5 text-pink-400 fill-pink-400" />
+                    <Sparkles className="w-5 h-5 text-yellow-400 fill-yellow-400" />
                   </motion.div>
                 ))}
               </motion.div>
@@ -347,25 +302,24 @@ export default function Cartas({ onBack }) {
             animate={{ opacity: 1, scale: 1 }}
             className="text-center py-16 bg-white/95 backdrop-blur rounded-3xl shadow-xl"
           >
-            <div className="text-6xl mb-4">💌</div>
+            <div className="text-6xl mb-4">🎵</div>
             <p className="text-gray-700 font-medium text-lg">
-              Aún no hay cartas disponibles
+              Aún no hay canciones en la playlist
             </p>
             <p className="text-gray-500 text-sm mt-2">
-              Pronto habrá nuevas sorpresas para ti
+              Pronto agregaré canciones especiales para ti 💕
             </p>
           </motion.div>
         )}
-
         {/* Mensaje motivacional */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1.4 }}
+          transition={{ delay: 1.1 }}
           className="bg-white/95 backdrop-blur rounded-3xl shadow-xl p-6 text-center relative overflow-hidden"
         >
           <div className="absolute top-0 right-0 text-8xl opacity-5">
-            💕
+            🎼
           </div>
           <motion.div
             animate={{ 
@@ -377,13 +331,14 @@ export default function Cartas({ onBack }) {
             <Heart className="w-16 h-16 mx-auto mb-4 text-pink-500 fill-pink-500" />
           </motion.div>
           <p className="text-gray-700 font-medium relative z-10">
-            Cada carta lleva un pedacito de mi corazón 💕
+            Cada canción cuenta nuestra historia de amor 🎶💕
           </p>
           <p className="text-sm text-gray-500 mt-2">
-            Lee y piensa en mí, mi amor
+            Escúchala y piensa en mí, mi amor
           </p>
         </motion.div>
       </div>
     </div>
   );
 }
+

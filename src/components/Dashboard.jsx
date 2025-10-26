@@ -1,23 +1,85 @@
 import { useState, useEffect } from 'react';
-import { Heart, Star, Gift, Mail, Sparkles, Cloud } from 'lucide-react';
+import { Heart, Star, Gift, Mail, Sparkles, Cloud, Music } from 'lucide-react';
+import { getFraseAleatoria, getEstado, darPunto } from '../utils/api';
+import toast from 'react-hot-toast';
 
 export default function Dashboard({ onNavigate }) {
   const [estado, setEstado] = useState({
-    puntos_consideracion: 47,
-    estrellas: 12,
-    razones_desbloqueadas: Array(8).fill(null)
+    puntos_consideracion: 0,
+    estrellas: 0,
+    razones_desbloqueadas: []
   });
   const [animatingPoints, setAnimatingPoints] = useState(false);
   const [hearts, setHearts] = useState([]);
+  const [fraseDelDia, setFraseDelDia] = useState({
+    texto: "Cargando frase especial...",
+    emoji: "💕"
+  });
+  const [loading, setLoading] = useState(true);
 
-  const handleDarPunto = () => {
+  useEffect(() => {
+    cargarDatos();
+  }, []);
+
+  const cargarDatos = async () => {
+    try {
+      const [estadoRes, fraseRes] = await Promise.all([
+        getEstado(),
+        getFraseAleatoria()
+      ]);
+      
+      setEstado({
+        puntos_consideracion: estadoRes.data.data.puntos_consideracion,
+        estrellas: estadoRes.data.data.estrellas,
+        razones_desbloqueadas: estadoRes.data.data.razones_desbloqueadas || []
+      });
+      
+      setFraseDelDia({
+        texto: fraseRes.data.data.texto,
+        emoji: fraseRes.data.data.emoji
+      });
+      
+      setLoading(false);
+    } catch (error) {
+      console.error('Error al cargar datos:', error);
+      setFraseDelDia({
+        texto: "En serio, te amo mucho y quiero poder volver a decirte 'mi princesa'. 💕",
+        emoji: "💕"
+      });
+      setLoading(false);
+    }
+  };
+
+  const handleDarPunto = async () => {
     if (animatingPoints) return;
     
     setAnimatingPoints(true);
-    setEstado(prev => ({
-      ...prev,
-      puntos_consideracion: prev.puntos_consideracion + 1
-    }));
+
+    try {
+      const res = await darPunto();
+      const nuevosPuntos = res.data.data.nuevo_total_puntos;
+      const razonesNuevas = res.data.data.razones_recien_desbloqueadas || [];
+      
+      setEstado(prev => ({
+        ...prev,
+        puntos_consideracion: nuevosPuntos
+      }));
+
+      // Mostrar notificación si se desbloquearon razones
+      if (razonesNuevas.length > 0) {
+        toast.success(`¡${razonesNuevas.length} ${razonesNuevas.length === 1 ? 'razón desbloqueada' : 'razones desbloqueadas'}! 🎉`, {
+          icon: '💝',
+          duration: 4000
+        });
+      } else {
+        toast.success('¡+1 punto de amoshito! 💕', {
+          duration: 2000
+        });
+      }
+    } catch (error) {
+      toast.error('Error al dar punto');
+      console.error('Error:', error);
+    }
 
     // Crear corazones flotantes
     const newHearts = Array.from({ length: 5 }, (_, i) => ({
@@ -32,6 +94,17 @@ export default function Dashboard({ onNavigate }) {
       setHearts([]);
     }, 2000);
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-sky-300 via-sky-400 to-pink-300 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-8xl mb-4 animate-bounce">💕</div>
+          <p className="text-white text-xl font-bold drop-shadow-lg">Cargando...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-sky-300 via-sky-400 to-pink-300 relative overflow-hidden">
@@ -67,11 +140,11 @@ export default function Dashboard({ onNavigate }) {
             <div className="inline-block mb-4 relative">
               <div className="absolute inset-0 bg-pink-400 blur-xl opacity-50 rounded-full animate-pulse"></div>
               <h1 className="text-4xl font-bold text-white relative drop-shadow-lg">
-                💕 Reconquista 💕
+                💕 Misión: FÉNIX 💕
               </h1>
             </div>
             <p className="text-white text-lg font-medium drop-shadow">
-              Cada punto cuenta una historia
+              {fraseDelDia.emoji} {fraseDelDia.texto}
             </p>
           </div>
 
@@ -90,10 +163,10 @@ export default function Dashboard({ onNavigate }) {
                   <Heart className="w-20 h-20 mx-auto mb-3 text-white fill-white drop-shadow-lg" />
                 </div>
                 <p className="text-2xl font-bold text-white drop-shadow-md">
-                  Dale un punto
+                  ¿Lo hice bien?
                 </p>
                 <p className="text-sm text-white/90 mt-2">
-                  (Sé que quieres 👀)
+                  (¿Me puedes dar un amoshito? 👀)
                 </p>
               </div>
             </button>
@@ -107,7 +180,7 @@ export default function Dashboard({ onNavigate }) {
                 {estado.puntos_consideracion}
               </div>
               <div className="text-sm text-gray-600 font-medium mt-2">
-                Puntos de Amor
+                Puntos de Amoshito
               </div>
             </div>
 
@@ -126,8 +199,8 @@ export default function Dashboard({ onNavigate }) {
           <div className="space-y-3">
             <MenuCard
               icon={<Mail className="w-6 h-6" />}
-              title="Carta del Día"
-              badge="Nuevo"
+              title="Cartita del Día"
+              badge="+1⭐"
               delay={0.5}
               onClick={() => onNavigate?.('cartas')}
               gradient="from-pink-400 to-rose-400"
@@ -146,7 +219,7 @@ export default function Dashboard({ onNavigate }) {
 
             <MenuCard
               icon={<Gift className="w-6 h-6" />}
-              title="Tienda de Premios"
+              title="Tienda de Regalitos Gonitos"
               badge={`${estado.estrellas}⭐`}
               delay={0.7}
               onClick={() => onNavigate?.('tienda')}
@@ -156,12 +229,22 @@ export default function Dashboard({ onNavigate }) {
 
             <MenuCard
               icon={<Star className="w-6 h-6" />}
-              title="Mini-Juego"
-              badge="+15⭐"
+              title="Preguntitaaaas!"
+              badge="+5⭐"
               delay={0.8}
               onClick={() => onNavigate?.('juego')}
               gradient="from-cyan-400 to-blue-400"
               emoji="🎮"
+            />
+
+            <MenuCard
+              icon={<Music className="w-6 h-6" />}
+              title="Cancioncitas para Ti"
+              badge="+1⭐"
+              delay={0.9}
+              onClick={() => onNavigate?.('canciones')}
+              gradient="from-purple-400 to-pink-400"
+              emoji="🎵"
             />
           </div>
 
@@ -169,7 +252,7 @@ export default function Dashboard({ onNavigate }) {
           <div className="text-center mt-8 animate-fade-in-up" style={{ animationDelay: '1s' }}>
             <div className="bg-white/30 backdrop-blur rounded-2xl p-4 shadow-lg">
               <p className="text-white font-medium drop-shadow">
-                Cada clic es un paso más cerca 💕
+                Te amo muchísimo y perdon por no haber hecho esto antes.
               </p>
             </div>
           </div>

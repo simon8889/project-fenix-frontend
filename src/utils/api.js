@@ -39,4 +39,11 @@ export const reclamarPremio = (premioId) =>
 // Juego
 export const completarJuego = () => api.post('/completar-juego');
 
+// Canciones
+export const getCanciones = () => api.get('/canciones');
+export const escucharCancion = () => api.post('/escuchar-cancion');
+
+// Frases
+export const getFraseAleatoria = () => api.get('/frases/aleatoria');
+
 export default api;
