@@ -22,7 +22,8 @@ export default function Razones({ onBack }) {
         getRazones()
       ]);
       
-      setPuntosActuales(estadoRes.data.data.puntos_consideracion);
+      const puntosSanacion = estadoRes.data.data.puntos_consideracion;
+      setPuntosActuales(puntosSanacion);
       setRazonesDesbloqueadas(razonesRes.data.data);
       
       // Crear array completo de 20 razones (desbloqueadas + bloqueadas)
@@ -31,7 +32,7 @@ export default function Razones({ onBack }) {
         return razonDesbloqueada || {
           id: i + 1,
           bloqueada: true,
-          puntos_requeridos: calcularPuntosRequeridos(i + 1)
+          puntos_requeridos: (i + 1) * 5  // Cada razón requiere múltiplos de 5
         };
       });
       
@@ -42,10 +43,37 @@ export default function Razones({ onBack }) {
     }
   };
 
-  // Distribución de puntos: 1,1,2,2,3,3,4,4,5,5,7,7,9,9,11,11,13,15,17,20
-  const calcularPuntosRequeridos = (id) => {
-    const distribucion = [1,1,2,2,3,3,4,4,5,5,7,7,9,9,11,11,13,15,17,20];
-    return distribucion[id - 1] || id;
+  // Función para obtener el emoji del corazón según los puntos
+  const getCorazonEmoji = (puntos) => {
+    if (puntos < 30) {
+      return '💔'; // Corazón roto
+    } else if (puntos >= 30 && puntos < 60) {
+      return '❤️‍🩹'; // Corazón sanando
+    } else {
+      return '💝'; // Corazón bonito/sano
+    }
+  };
+
+  // Función para obtener el mensaje según los puntos
+  const getCorazonMensaje = (puntos) => {
+    if (puntos < 30) {
+      return 'Corazón Roto - Necesita Sanación';
+    } else if (puntos >= 30 && puntos < 60) {
+      return 'Corazón Sanando - En Proceso';
+    } else {
+      return 'Corazón Sano - Lleno de Amor';
+    }
+  };
+
+  // Función para obtener el color del gradiente según los puntos
+  const getCorazonColor = (puntos) => {
+    if (puntos < 30) {
+      return 'from-gray-400 to-gray-600';
+    } else if (puntos >= 30 && puntos < 60) {
+      return 'from-orange-400 to-pink-500';
+    } else {
+      return 'from-pink-500 to-rose-500';
+    }
   };
 
   if (loading) {
@@ -129,17 +157,34 @@ export default function Razones({ onBack }) {
             transition={{ delay: 0.2 }}
             className="bg-white/95 backdrop-blur rounded-3xl shadow-2xl p-6 relative overflow-hidden"
           >
-            {/* Decoración de fondo */}
+            {/* Decoración de fondo - Corazón dinámico */}
             <div className="absolute top-0 right-0 text-9xl opacity-5">
-              💝
+              {getCorazonEmoji(puntosActuales)}
             </div>
 
             <div className="relative z-10">
+              {/* Estado del Corazón */}
+              <div className="text-center mb-4">
+                <motion.div
+                  animate={{ 
+                    scale: [1, 1.1, 1],
+                    rotate: puntosActuales < 30 ? [0, -5, 5, -5, 0] : [0, 0]
+                  }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                  className="text-6xl mb-2"
+                >
+                  {getCorazonEmoji(puntosActuales)}
+                </motion.div>
+                <p className={`font-bold text-lg bg-gradient-to-r ${getCorazonColor(puntosActuales)} bg-clip-text text-transparent`}>
+                  {getCorazonMensaje(puntosActuales)}
+                </p>
+              </div>
+
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
                   <Crown className="w-5 h-5 text-yellow-500" />
                   <span className="text-sm font-semibold text-gray-700">
-                    Tu Progreso
+                    Razones Desbloqueadas
                   </span>
                 </div>
                 <motion.span 
@@ -182,11 +227,11 @@ export default function Razones({ onBack }) {
                 <div className="flex items-center gap-2">
                   <Heart className="w-4 h-4 text-pink-500 fill-pink-500" />
                   <span className="text-sm text-gray-600">
-                    {puntosActuales} puntos acumulados
+                    {puntosActuales}/100 Puntos de Sanación
                   </span>
                 </div>
                 <span className="text-xs font-semibold text-pink-600">
-                  {porcentajeProgreso.toFixed(0)}%
+                  {((puntosActuales / 100) * 100).toFixed(0)}%
                 </span>
               </div>
 
@@ -197,7 +242,7 @@ export default function Razones({ onBack }) {
                   transition={{ delay: 0.5 }}
                   className="text-xs text-gray-500 mt-3 text-center bg-pink-50 rounded-full py-2 px-4"
                 >
-                  ¡Sigue dando puntos para desbloquear más! 🔥
+                  Cada 5 puntos desbloqueas una nueva razón 💝
                 </motion.p>
               )}
             </div>

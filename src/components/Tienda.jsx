@@ -194,7 +194,7 @@ export default function Tienda({ onBack }) {
                 >
                   <Zap className="w-4 h-4 text-yellow-500 fill-yellow-500" />
                   <span className="font-bold text-yellow-600">
-                    {estrellas >= 100 ? 'Vas genial 💫' : estrellas >= 50 ? 'Sigue así amor 💪' : 'Tas pobre, wey.'}
+                    {estrellas >= 100 ? 'Vas genial 💫' : estrellas >= 30 ? 'Uhhh 💪' : 'Tas pobre, wey.'}
                   </span>
                 </motion.div>
               </div>
@@ -320,7 +320,7 @@ function PremioCard({ premio, estrellas, onReclamar, reclamando }) {
                   estrellas >= premio.costo ? 'text-green-600' : 'text-gray-500'
                 }`}>
                   {estrellas >= premio.costo 
-                    ? '¡Ya es tuyo, amor! 💖' 
+                    ? '¡Ya es tuyo, Guapa! 💖' 
                     : `Te faltan ${premio.costo - estrellas} ⭐`
                   }
                 </span>
@@ -396,7 +396,7 @@ function PremioCard({ premio, estrellas, onReclamar, reclamando }) {
           <div className="text-center py-3 bg-green-50 rounded-2xl">
             <p className="text-green-600 font-bold flex items-center justify-center gap-2">
               <Check className="w-5 h-5" />
-              ¡Reclamado con amor! 💚✨
+              ¡No mames, wey! Otro? 💚✨
             </p>
           </div>
         )}

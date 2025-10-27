@@ -222,7 +222,7 @@ export default function Cancioncitas({ onBack }) {
               >
                 <div className="flex items-center gap-2 mb-3">
                   <Heart className="w-6 h-6 text-pink-500 fill-pink-500" />
-                  <span className="font-bold text-gray-800 text-lg">Por qué te la dedico:</span>
+                  <span className="font-bold text-gray-800 text-lg">Por qué:</span>
                 </div>
                 <p className="text-gray-700 leading-relaxed text-base">
                   {cancionAleatoria.motivo}

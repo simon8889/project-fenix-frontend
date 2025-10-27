@@ -50,6 +50,28 @@ export default function Dashboard({ onNavigate }) {
     }
   };
 
+  // Función para obtener el emoji del corazón según los puntos
+  const getCorazonEmoji = (puntos) => {
+    if (puntos < 30) {
+      return '💔'; // Corazón roto
+    } else if (puntos >= 30 && puntos < 60) {
+      return '❤️‍🩹'; // Corazón sanando
+    } else {
+      return '💝'; // Corazón bonito/sano
+    }
+  };
+
+  // Función para obtener el color del gradiente según los puntos
+  const getCorazonGradient = (puntos) => {
+    if (puntos < 30) {
+      return 'from-gray-400 to-gray-600'; // Corazón roto - gris
+    } else if (puntos >= 30 && puntos < 60) {
+      return 'from-orange-400 to-pink-500'; // Corazón sanando - naranja a rosa
+    } else {
+      return 'from-pink-500 to-rose-500'; // Corazón sano - rosa
+    }
+  };
+
   const handleDarPunto = async () => {
     if (animatingPoints) return;
     
@@ -72,7 +94,7 @@ export default function Dashboard({ onNavigate }) {
           duration: 4000
         });
       } else {
-        toast.success('¡+1 punto de amoshito! 💕', {
+        toast.success('¡+1 punto de sanación! 💕', {
           duration: 2000
         });
       }
@@ -166,7 +188,7 @@ export default function Dashboard({ onNavigate }) {
                   ¿Lo hice bien?
                 </p>
                 <p className="text-sm text-white/90 mt-2">
-                  (¿Me puedes dar un amoshito? 👀)
+                  (¿Me das un punto de sanación? 👀💕)
                 </p>
               </div>
             </button>
@@ -175,12 +197,19 @@ export default function Dashboard({ onNavigate }) {
           {/* Contadores con diseño de tarjetas románticas */}
           <div className="grid grid-cols-2 gap-4 mb-6">
             <div className="bg-white/95 backdrop-blur rounded-3xl shadow-xl p-6 text-center transform transition-all hover:scale-105 animate-slide-in-left">
-              <div className="text-5xl mb-2 animate-bounce-slow">💝</div>
-              <div className="text-4xl font-bold bg-gradient-to-r from-pink-500 to-rose-500 bg-clip-text text-transparent">
-                {estado.puntos_consideracion}
+              <div className="text-5xl mb-2 animate-bounce-slow">
+                {getCorazonEmoji(estado.puntos_consideracion)}
+              </div>
+              <div className={`text-4xl font-bold bg-gradient-to-r ${getCorazonGradient(estado.puntos_consideracion)} bg-clip-text text-transparent`}>
+                {estado.puntos_consideracion}/100
               </div>
               <div className="text-sm text-gray-600 font-medium mt-2">
-                Puntos de Amoshito
+                Puntos de Sanación
+              </div>
+              <div className="text-xs text-gray-500 mt-1">
+                {estado.puntos_consideracion < 30 && '💔 Sanando...'}
+                {estado.puntos_consideracion >= 30 && estado.puntos_consideracion < 60 && '❤️‍🩹 Recuperándose'}
+                {estado.puntos_consideracion >= 60 && '💝 Corazón Sano'}
               </div>
             </div>
 
