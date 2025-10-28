@@ -11,10 +11,10 @@ import gatitoCohete from '../assets/gatito_cohete.png';
 import gatitoPatitaNo from '../assets/gatito_patita_no_tocar.png';
 
 const GAME_DURATION = 30; // segundos
-const SPAWN_INTERVAL = 800; // ms inicial
-const MIN_SPAWN_INTERVAL = 300; // ms mínimo
-const FALL_DURATION = 4; // segundos inicial
-const MIN_FALL_DURATION = 2; // segundos mínimo
+const SPAWN_INTERVAL = 1500; // ms inicial
+const MIN_SPAWN_INTERVAL = 800; // ms mínimo
+const FALL_DURATION = 6; // segundos inicial
+const MIN_FALL_DURATION = 4; // segundos mínimo
 const POINTS_THRESHOLD = 150; // Puntos necesarios para ganar estrellas
 
 const ITEM_TYPES = {
