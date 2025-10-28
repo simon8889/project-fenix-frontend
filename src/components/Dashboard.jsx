@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Heart, Star, Gift, Mail, Sparkles, Cloud, Music } from 'lucide-react';
+import { Heart, Star, Gift, Mail, Sparkles, Cloud, Music, Gamepad2 } from 'lucide-react';
 import { getFraseAleatoria, getEstado, darPunto } from '../utils/api';
 import toast from 'react-hot-toast';
 
@@ -227,10 +227,22 @@ export default function Dashboard({ onNavigate }) {
           {/* Menú de Secciones */}
           <div className="space-y-3">
             <MenuCard
+              icon={<Gamepad2 className="w-6 h-6" />}
+              title="¡Atrapa a Plutoncito!"
+              badge="NUEVO"
+              badgeColor="bg-gradient-to-r from-green-400 to-emerald-500"
+              starsBadge="+15⭐"
+              delay={0.5}
+              onClick={() => onNavigate?.('atrapa-corazones')}
+              gradient="from-pink-500 to-rose-500"
+              emoji="🐱"
+            />
+
+            <MenuCard
               icon={<Mail className="w-6 h-6" />}
               title="Cartita del Día"
               badge="+1⭐"
-              delay={0.5}
+              delay={0.6}
               onClick={() => onNavigate?.('cartas')}
               gradient="from-pink-400 to-rose-400"
               emoji="💌"
@@ -240,7 +252,7 @@ export default function Dashboard({ onNavigate }) {
               icon={<Sparkles className="w-6 h-6" />}
               title="Razones Desbloqueadas"
               badge={`${estado.razones_desbloqueadas.length}/20`}
-              delay={0.6}
+              delay={0.7}
               onClick={() => onNavigate?.('razones')}
               gradient="from-purple-400 to-indigo-400"
               emoji="✨"
@@ -250,7 +262,7 @@ export default function Dashboard({ onNavigate }) {
               icon={<Gift className="w-6 h-6" />}
               title="Tienda de Regalitos Gonitos"
               badge={`${estado.estrellas}⭐`}
-              delay={0.7}
+              delay={0.8}
               onClick={() => onNavigate?.('tienda')}
               gradient="from-orange-400 to-amber-400"
               emoji="🎁"
@@ -260,7 +272,7 @@ export default function Dashboard({ onNavigate }) {
               icon={<Star className="w-6 h-6" />}
               title="Preguntitaaaas!"
               badge="+5⭐"
-              delay={0.8}
+              delay={0.9}
               onClick={() => onNavigate?.('juego')}
               gradient="from-cyan-400 to-blue-400"
               emoji="🎮"
@@ -270,7 +282,7 @@ export default function Dashboard({ onNavigate }) {
               icon={<Music className="w-6 h-6" />}
               title="Cancioncitas para Ti"
               badge="+1⭐"
-              delay={0.9}
+              delay={1.0}
               onClick={() => onNavigate?.('canciones')}
               gradient="from-purple-400 to-pink-400"
               emoji="🎵"
@@ -396,7 +408,7 @@ export default function Dashboard({ onNavigate }) {
   );
 }
 
-function MenuCard({ icon, title, badge, delay, onClick, gradient, emoji }) {
+function MenuCard({ icon, title, badge, badgeColor, starsBadge, delay, onClick, gradient, emoji }) {
   return (
     <button
       onClick={onClick}
@@ -414,8 +426,22 @@ function MenuCard({ icon, title, badge, delay, onClick, gradient, emoji }) {
           </h3>
         </div>
       </div>
-      <div className="bg-gradient-to-br from-pink-400 to-rose-400 text-white px-3 py-1 rounded-full text-sm font-bold shadow-md">
-        {badge}
+      <div className="flex items-center gap-2">
+        {badgeColor && (
+          <div className={`${badgeColor} text-white px-3 py-1 rounded-full text-xs font-bold shadow-md animate-pulse`}>
+            {badge}
+          </div>
+        )}
+        {starsBadge && (
+          <div className="bg-gradient-to-br from-pink-400 to-rose-400 text-white px-3 py-1 rounded-full text-sm font-bold shadow-md">
+            {starsBadge}
+          </div>
+        )}
+        {!badgeColor && !starsBadge && (
+          <div className="bg-gradient-to-br from-pink-400 to-rose-400 text-white px-3 py-1 rounded-full text-sm font-bold shadow-md">
+            {badge}
+          </div>
+        )}
       </div>
     </button>
   );

@@ -6,6 +6,7 @@ import Razones from './components/Razones';
 import Tienda from './components/Tienda';
 import MiniJuego from './components/MiniJuego';
 import Cancioncitas from './components/Cancioncitas';
+import AtrapaCorazones from './components/AtrapaCorazones';
 
 function App() {
   const [vistaActual, setVistaActual] = useState('dashboard');
@@ -24,6 +25,8 @@ function App() {
         return <MiniJuego onBack={() => setVistaActual('dashboard')} />;
       case 'canciones':
         return <Cancioncitas onBack={() => setVistaActual('dashboard')} />;
+      case 'atrapa-corazones':
+        return <AtrapaCorazones onBack={() => setVistaActual('dashboard')} />;
       default:
         return <Dashboard onNavigate={setVistaActual} />;
     }
